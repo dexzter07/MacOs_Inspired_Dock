@@ -11,12 +11,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: MacOsInspiredDoc(),
-        ),
-      ),
-    );
+        debugShowCheckedModeBanner: false, home: MacOsInspiredDoc());
   }
 }

@@ -11,6 +11,9 @@ class MacOsInspiredDoc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xff000000),
+      ),
       body: Center(
         child: Container(
           height: 65,
