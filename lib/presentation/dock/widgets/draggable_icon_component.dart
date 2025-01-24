@@ -2,101 +2,77 @@ import 'package:dock_draggable/presentation/dock/controller/dock_controller.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class DockItem extends StatelessWidget {
+class DockItem extends StatefulWidget {
   final int index;
-  final DockController controller = Get.find<DockController>();
 
-  DockItem({required this.index, super.key});
+  const DockItem({super.key, required this.index});
+
+  @override
+  State<DockItem> createState() => _DockItemState();
+}
+
+class _DockItemState extends State<DockItem> {
+  final DockController controller = Get.find<DockController>();
 
   @override
   Widget build(BuildContext context) {
     return DragTarget<int>(
       onWillAcceptWithDetails: (draggedDetails) {
-        controller.updateHoverIndex(index);
+        controller.updateHoveredIndex(widget.index);
         return true;
       },
       onAcceptWithDetails: (details) {
-        controller.reorderItems(details.data, index);
+        controller.reorderItems(details.data, widget.index);
       },
       onLeave: (_) {
-        controller.updateHoverIndex(null);
+        controller.updateHoveredIndex(null);
       },
       builder: (context, candidateData, rejectedData) {
         return MouseRegion(
           cursor: SystemMouseCursors.click,
-          onEnter: (_) {
-            if (controller.draggedIndex.value == null) {
-              controller.updateHoverIndex(index);
-            }
-          },
-          onExit: (_) {
-            if (controller.draggedIndex.value == null) {
-              controller.updateHoverIndex(null);
-            }
-          },
+          onEnter: (_) => controller.updateHoveredIndex(widget.index),
+          onExit: (_) => controller.updateHoveredIndex(null),
           child: Draggable<int>(
-            data: index,
-            feedback: Material(
-              color: Colors.transparent,
-              child: _buildAnimatedItem(true),
-            ),
-            onDragStarted: () {
-              controller.updateDraggedIndex(index);
-              controller.updateHoverIndex(null);
-            },
+            data: widget.index,
+            feedback: Obx(() => buildDockIcon(true)),
+            childWhenDragging: const SizedBox.shrink(),
+            onDragStarted: () => controller.updateDraggedIndex(widget.index),
             onDragEnd: (_) {
               controller.updateDraggedIndex(null);
+              controller.setDockHovered(false);
             },
-            childWhenDragging: Opacity(
-              opacity: 0.0,
-              child: _buildAnimatedItem(false),
-            ),
-            child: _buildAnimatedItem(false),
+            child: Obx(() => buildDockIcon(false)),
           ),
         );
       },
     );
   }
 
-  Widget _buildAnimatedItem(bool isDragging) {
-    return Obx(
-      () => AnimatedContainer(
-        padding: const EdgeInsets.all(8),
-        constraints: const BoxConstraints(minWidth: 48),
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        duration: const Duration(milliseconds: 300),
-        transform: Matrix4.identity()
-          ..translate(
-            controller.getTranslationX(index),
-            controller.getTranslationY(index),
-            0.0,
-          ),
-        height: controller.getScaledSize(index),
-        width: controller.getScaledSize(index),
-        alignment: AlignmentDirectional.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: controller.items[index].color,
-          boxShadow: isDragging
-              ? [
-                  BoxShadow(
-                    color: Colors.black45,
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Icon(
-          controller.items[index].icon,
-          color: Colors.white,
-        ),
+  Widget buildDockIcon(bool isDragging) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      width: controller.calculateScaledSize(widget.index),
+      height: controller.calculateScaledSize(widget.index),
+      margin: EdgeInsets.symmetric(
+        horizontal: controller.spacing / 2,
+      ),
+      decoration: BoxDecoration(
+        color: controller.items[widget.index].color,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: isDragging
+            ? [
+                BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                )
+              ]
+            : [],
+      ),
+      child: Icon(
+        controller.items[widget.index].icon,
+        color: Colors.white,
+        size: 24,
       ),
     );
   }

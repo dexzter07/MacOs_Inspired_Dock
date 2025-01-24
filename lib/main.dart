@@ -10,7 +10,6 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-        debugShowCheckedModeBanner: false, home: MacOsInspiredDoc());
+    return GetMaterialApp(debugShowCheckedModeBanner: false, home: MacOSDock());
   }
 }

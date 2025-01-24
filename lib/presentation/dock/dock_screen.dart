@@ -1,33 +1,39 @@
+import 'package:dock_draggable/core/imports.dart';
 import 'package:dock_draggable/presentation/dock/controller/dock_controller.dart';
 import 'package:dock_draggable/presentation/dock/widgets/draggable_icon_component.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-class MacOsInspiredDoc extends StatelessWidget {
+class MacOSDock extends StatelessWidget {
   final DockController controller = Get.put(DockController());
 
-  MacOsInspiredDoc({super.key});
+  MacOSDock({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xff000000),
-      ),
+      backgroundColor: Colors.white,
       body: Center(
-        child: Container(
-          height: 65,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            color: Colors.black12,
-          ),
-          padding: EdgeInsets.all(controller.verticalItemsPadding),
+        child: MouseRegion(
+          onEnter: (_) => controller.setDockHovered(true),
+          onExit: (_) => controller.setDockHovered(false),
           child: Obx(
-            () => Row(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(controller.items.length, (index) {
-                return DockItem(index: index);
-              }),
+            () => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: controller.isDockHovered.value
+                  ? controller.calculateDockWidth() + 20
+                  : controller.calculateDockWidth(),
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              padding: EdgeInsets.all(8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  controller.items.length,
+                  (index) => DockItem(index: index),
+                ),
+              ),
             ),
           ),
         ),
