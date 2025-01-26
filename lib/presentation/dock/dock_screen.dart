@@ -12,6 +12,10 @@ class MacOSDock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.teal,
+        title: Text("MacOs Inspired Doc"),
+      ),
       body: Center(
         child: MouseRegion(
           onEnter: (_) {
