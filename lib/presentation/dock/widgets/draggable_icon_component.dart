@@ -1,8 +1,9 @@
+import 'package:dock_draggable/core/imports.dart';
 import 'package:dock_draggable/presentation/dock/controller/dock_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
+/// widget for an individual item in the dock.
 class DockItem extends StatefulWidget {
+  /// The index of the item in the dock.
   final int index;
 
   const DockItem({super.key, required this.index});
@@ -12,34 +13,37 @@ class DockItem extends StatefulWidget {
 }
 
 class _DockItemState extends State<DockItem> {
-  final DockController controller = Get.find<DockController>();
+  /// The controller responsible for managing state.
+  final DockController _dockController = Get.find<DockController>();
 
   @override
   Widget build(BuildContext context) {
     return DragTarget<int>(
       onWillAcceptWithDetails: (draggedDetails) {
-        controller.updateHoveredIndex(widget.index);
-        return true;
+        _dockController.updateHoveredIndex(widget.index);
+        return true; // Allows the drag-and-drop operation
       },
       onAcceptWithDetails: (details) {
-        controller.reorderItems(details.data, widget.index);
+        _dockController.reorderItems(
+            details.data, widget.index); // Reorders items
       },
       onLeave: (_) {
-        controller.updateHoveredIndex(null);
+        _dockController.updateHoveredIndex(null);
       },
       builder: (context, candidateData, rejectedData) {
         return MouseRegion(
           cursor: SystemMouseCursors.click,
-          onEnter: (_) => controller.updateHoveredIndex(widget.index),
-          onExit: (_) => controller.updateHoveredIndex(null),
+          onEnter: (_) => _dockController.updateHoveredIndex(widget.index),
+          onExit: (_) => _dockController.updateHoveredIndex(null),
           child: Draggable<int>(
             data: widget.index,
             feedback: Obx(() => buildDockIcon(true)),
             childWhenDragging: const SizedBox.shrink(),
-            onDragStarted: () => controller.updateDraggedIndex(widget.index),
+            onDragStarted: () =>
+                _dockController.updateDraggedIndex(widget.index),
             onDragEnd: (_) {
-              controller.updateDraggedIndex(null);
-              controller.setDockHovered(false);
+              _dockController.updateDraggedIndex(null);
+              _dockController.setDockHovered(false);
             },
             child: Obx(() => buildDockIcon(false)),
           ),
@@ -48,16 +52,18 @@ class _DockItemState extends State<DockItem> {
     );
   }
 
+  /// Builds the representation of the dock icon.
   Widget buildDockIcon(bool isDragging) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      width: controller.calculateScaledSize(widget.index),
-      height: controller.calculateScaledSize(widget.index),
+      width: _dockController.calculateScaledSize(widget.index),
+      height:
+          _dockController.calculateScaledSize(widget.index), // Adjust icon size
       margin: EdgeInsets.symmetric(
-        horizontal: controller.spacing / 2,
+        horizontal: _dockController.spacing / 2,
       ),
       decoration: BoxDecoration(
-        color: controller.items[widget.index].color,
+        color: _dockController.items[widget.index].color,
         borderRadius: BorderRadius.circular(14),
         boxShadow: isDragging
             ? [
@@ -70,7 +76,7 @@ class _DockItemState extends State<DockItem> {
             : [],
       ),
       child: Icon(
-        controller.items[widget.index].icon,
+        _dockController.items[widget.index].icon,
         color: Colors.white,
         size: 24,
       ),
